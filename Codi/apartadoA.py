@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import time
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.linear_model import LogisticRegression
@@ -57,7 +58,7 @@ y = dataValues[:, 64]
 #     x_t, x_v, y_t, y_v = train_test_split(X, y, train_size=part)
 #
 #     # Creem el regresor logístic
-#     logireg = LogisticRegression(C=2.0, fit_intercept=True, penalty='l2', tol=0.001)
+#     logireg = LogisticRegression()
 #
 #     # l'entrenem
 #     logireg.fit(x_t, y_t)
@@ -65,20 +66,21 @@ y = dataValues[:, 64]
 #     print("Correct classification Logistic ", part, "% of the data: ", logireg.score(x_v, y_v))
 #
 #     # Creem el regresor logístic
-#     svc = svm.SVC(C=10.0, kernel='rbf', gamma=0.9, probability=True)
+#     svc = svm.SVC(probability=True)
 #
 #     # l'entrenem
 #     svc.fit(x_t, y_t)
-#     probs = svc.predict_proba(x_v)
+#     probs = svc.predict(x_v)
 #     print("Correct classification SVM      ", part, "% of the data: ", svc.score(x_v, y_v))
-##########################################################################################################
+#########################################################################################################
 
 # USAMOS LOS MODELOS Y LOS ENTRENAMOS PARA PODER VISUALIZAR LAS GRÁFICAS
-# lista_modelos = [LogisticRegression(), svm.SVC(probability=True)]
+# lista_modelos = [LogisticRegression(), svm.SVC(kernel='sigmoid', probability=True)]
 # text_modelos = ["Logistic Regression", "SVM"]
 # j = 0
 # aux = 0
 # for a, model in enumerate(lista_modelos):
+#     start = time.time()
 #     x_t, x_v, y_t, y_v = train_test_split(X, y, train_size=0.8)
 #     model.fit(x_t, y_t)
 #     probs = model.predict_proba(x_v)
@@ -97,10 +99,10 @@ y = dataValues[:, 64]
 #         plt.xlabel('Recall')
 #         plt.ylabel('Precision')
 #         plt.legend(loc="upper right")
-#     plt.savefig("../Graficas/Resultados de Apartado A/Precission Recall Curve " + text_modelos[j] + " " + str(aux))
+#     plt.savefig("../Graficas/Resultados de Apartado A/Precission Recall Curve " + text_modelos[j])
 #
 #     plt.show()
-#
+#     start = time.time()
 #     fpr = {}
 #     tpr = {}
 #     roc_auc = {}
@@ -113,14 +115,17 @@ y = dataValues[:, 64]
 #     plt.figure()
 #     for i in range(n_classes):
 #         plt.plot(fpr[i], tpr[i], label='ROC curve of class {0} (area = {1:0.2f})' ''.format(i, roc_auc[i]))
-#     plt.savefig("../Graficas/Resultados de Apartado A/ROC " + text_modelos[j] + " " + str(aux))
+#     plt.savefig("../Graficas/Resultados de Apartado A/ROC " + text_modelos[j])
 #     j = j + 1
 #     aux = aux + 1
 #     plt.legend()
 #     plt.show()
+#     end = time.time()
+#     tiempo = end - start
+#     print("Tiempo transcurrido: " + str(end - start))
 ##########################################################################################################
 
-def make_meshgrid(x, y, h=.02):
+def make_meshgrid(x, y, h=1):
     """Create a mesh of points to plot in
 
     Parameters
@@ -151,6 +156,10 @@ def plot_contours(ax, clf, xx, yy, **params):
     yy: meshgrid ndarray
     params: dictionary of params to pass to contourf, optional
     """
+    a = xx.ravel()
+    b = yy.ravel()
+    c = np.c_[a, b]
+    d = clf.predict(c)
     Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
     Z = Z.reshape(xx.shape)
     out = ax.contourf(xx, yy, Z, **params)
@@ -167,7 +176,7 @@ def show_C_effect(X, y, C=1.0, gamma=0.7, degree=3):
               'SVC with polynomial (degree 3) kernel')
 
     #C = 1.0  # SVM regularization parameter
-    models = (svm.SVC(kernel='linear', C=C),
+    models = (svm.SVC(),
               svm.LinearSVC(C=C, max_iter=1000000),
               svm.SVC(kernel='rbf', gamma=gamma, C=C),
               svm.SVC(kernel='poly', degree=degree, gamma='auto', C=C))
@@ -191,7 +200,9 @@ def show_C_effect(X, y, C=1.0, gamma=0.7, degree=3):
         ax.set_xticks(())
         ax.set_yticks(())
         ax.set_title(title)
-
+    plt.savefig("../Graficas/Resultados de Apartado A/Scatter Meshgrid 2")
     plt.show()
 
-show_C_effect(X[:, :2], y, C=0.1)
+#show_C_effect(X[:, :2], y, C=0.1)
+show_C_effect(X[:, :2], y, C=1)
+#show_C_effect(X[:, :2], y, C=20)
